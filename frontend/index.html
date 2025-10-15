@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Smart Classroom Management System - Login</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+  <style>
+    /* Your entire original CSS here, unchanged */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      color: #333;
+    }
+
+    .login-container {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      padding: 20px;
+    }
+
+    .login-card {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(20px);
+      border-radius: 25px;
+      padding: 40px;
+      box-shadow: 0 30px 60px rgba(0, 0, 0, 0.2);
+      width: 100%;
+      max-width: 450px;
+      text-align: center;
+      animation: slideUp 0.6s ease-out;
+    }
+
+    @keyframes slideUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .login-logo {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+      font-size: 28px;
+      font-weight: bold;
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 30px;
+    }
+
+    .role-selection {
+      margin-bottom: 30px;
+    }
+
+    .role-option {
+      display: flex;
+      align-items: center;
+      padding: 20px;
+      margin: 15px 0;
+      border: 2px solid #e9ecef;
+      border-radius: 15px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: white;
+    }
+
+    .role-option:hover {
+      border-color: #667eea;
+      box-shadow: 0 10px 25px rgba(102, 126, 234, 0.2);
+      transform: translateY(-2px);
+    }
+
+    .role-option.selected {
+      border-color: #667eea;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+
+    .role-icon {
+      margin-right: 15px;
+      width: 24px;
+      height: 24px;
+    }
+
+    .role-info {
+      text-align: left;
+    }
+
+    .role-title {
+      font-weight: bold;
+      font-size: 18px;
+      margin-bottom: 5px;
+    }
+
+    .role-description {
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .login-form {
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+      text-align: left;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 8px;
+      font-weight: 600;
+      color: #555;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 15px;
+      border: 2px solid #e9ecef;
+      border-radius: 10px;
+      font-size: 16px;
+      transition: border-color 0.3s ease;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .btn {
+      padding: 15px 30px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      transition: all 0.3s ease;
+      text-decoration: none;
+      display: inline-block;
+      text-align: center;
+    }
+
+    .btn-primary {
+      background: linear-gradient(45deg, #667eea, #764ba2);
+      color: white;
+      width: 100%;
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .error-message {
+      color: #ff4757;
+      background: rgba(255, 71, 87, 0.1);
+      border: 1px solid rgba(255, 71, 87, 0.3);
+      padding: 10px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      font-size: 14px;
+      display: none;
+    }
+
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid #667eea;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-card">
+      <div class="login-logo">
+        <i data-lucide="graduation-cap"></i>
+        ClassEase
+      </div>
+
+      <div class="role-selection">
+        <h3 style="margin-bottom: 20px; color: #666;">Select Your Role</h3>
+
+        <div class="role-option" data-role="student">
+          <i data-lucide="user" class="role-icon"></i>
+          <div class="role-info">
+            <div class="role-title">Student</div>
+            <div class="role-description">View your schedule and classroom information</div>
+          </div>
+        </div>
+
+        <div class="role-option" data-role="teacher">
+          <i data-lucide="users" class="role-icon"></i>
+          <div class="role-info">
+            <div class="role-title">Teacher</div>
+            <div class="role-description">Manage classes and edit timetables</div>
+          </div>
+        </div>
+
+        <div class="role-option" data-role="administrator">
+          <i data-lucide="shield" class="role-icon"></i>
+          <div class="role-info">
+            <div class="role-title">Administrator</div>
+            <div class="role-description">Full system access and management</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="error-message" id="errorMessage"></div>
+
+      <form class="login-form" id="loginForm">
+        <div class="form-group">
+          <label for="email">Email</label>
+          <input type="email" id="email" required placeholder="Enter your email" />
+        </div>
+
+        <div class="form-group">
+          <label for="password">Password</label>
+          <input type="password" id="password" required placeholder="Enter your password" />
+        </div>
+
+        <button type="submit" class="btn btn-primary" id="loginBtn">
+          <i data-lucide="log-in" style="margin-right: 8px;"></i>
+          Sign In
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+  <script>
+    let selectedRole = null;
+
+    document.addEventListener("DOMContentLoaded", () => {
+      if (typeof lucide !== "undefined" && lucide.createIcons) {
+        lucide.createIcons();
+      }
+      setupEventListeners();
+    });
+
+    function setupEventListeners() {
+      document.querySelectorAll(".role-option").forEach((option) => {
+        option.addEventListener("click", function () {
+          document.querySelectorAll(".role-option").forEach((opt) =>
+            opt.classList.remove("selected")
+          );
+          this.classList.add("selected");
+          selectedRole = this.dataset.role;
+        });
+      });
+
+      document.getElementById("loginForm").addEventListener("submit", handleLogin);
+    }
+
+    async function handleLogin(e) {
+      e.preventDefault();
+      console.log("handleLogin called");
+
+  const email = document.getElementById("email").value.trim().toLowerCase();
+      const password = document.getElementById("password").value.trim();
+      const errorMessage = document.getElementById("errorMessage");
+      const loginBtn = document.getElementById("loginBtn");
+
+      errorMessage.style.display = "none";
+
+      if (!selectedRole) {
+        showError("Please select a role");
+        return;
+      }
+
+      if (!email || !password) {
+        showError("Please enter email and password");
+        return;
+      }
+
+      loginBtn.disabled = true;
+      loginBtn.innerHTML = '<span class="loading-spinner"></span> Signing In...';
+
+      try {
+  const response = await fetch("http://localhost:5000/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, password, role: selectedRole }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          sessionStorage.setItem("user", JSON.stringify(data.user));
+          sessionStorage.setItem("token", data.token);
+
+          switch (selectedRole) {
+            case "student":
+              window.location.href = "student.html";
+              break;
+            case "teacher":
+              window.location.href = "teacher.html";
+              break;
+            case "administrator":
+              window.location.href = "admin.html";
+              break;
+          }
+        } else {
+          showError(data.message || "Invalid credentials or unauthorized role");
+        }
+      } catch (error) {
+        console.error("Login error:", error);
+        showError("Connection error. Please try again.");
+      } finally {
+        loginBtn.disabled = false;
+        loginBtn.innerHTML =
+          '<i data-lucide="log-in" style="margin-right: 8px;"></i> Sign In';
+        if (typeof lucide !== "undefined" && lucide.createIcons) {
+          lucide.createIcons();
+        }
+      }
+    }
+
+    function showError(message) {
+      const errorMessage = document.getElementById("errorMessage");
+      errorMessage.textContent = message;
+      errorMessage.style.display = "block";
+    }
+  </script>
+
+</body>
+</html>

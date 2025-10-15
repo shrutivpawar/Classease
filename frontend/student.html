@@ -1,0 +1,1671 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Dashboard - Smart Classroom</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js" defer crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        .btn.btn-success {
+            background: linear-gradient(45deg, #2ed573, #1eae60);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 2px 8px rgba(46,213,115,0.10);
+        }
+        .btn.btn-success:hover {
+            background: linear-gradient(45deg, #1eae60, #2ed573);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .advanced-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #fff;
+            border-radius: 18px 18px 0 0;
+            padding: 24px 32px 18px 32px;
+            margin-bottom: 0;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.10);
+        }
+        .advanced-title {
+            font-size: 2em;
+            font-weight: 700;
+            color: #6c47c7;
+        }
+        .advanced-user {
+            background: #764ba2;
+            color: #fff;
+            border-radius: 16px;
+            padding: 6px 18px;
+            font-weight: 600;
+            margin-left: 18px;
+        }
+        .advanced-tabs {
+            display: flex;
+            gap: 0;
+            background: #f5f3ff;
+            border-radius: 0 0 18px 18px;
+            margin-bottom: 0;
+            padding: 0 32px;
+        }
+        .tab-btn {
+            flex: 1;
+            background: none;
+            border: none;
+            outline: none;
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #6c47c7;
+            padding: 18px 0 16px 0;
+            border-radius: 18px 18px 0 0;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+        .tab-btn.active {
+            background: linear-gradient(90deg, #7f6edb 0%, #764ba2 100%);
+            color: #fff;
+            box-shadow: 0 4px 16px rgba(102,126,234,0.10);
+        }
+        .advanced-tab-content {
+            background: #f8f7fc;
+            border-radius: 0 0 18px 18px;
+            min-height: 320px;
+            padding: 36px 40px 40px 40px;
+            box-shadow: 0 8px 32px rgba(102,126,234,0.08);
+        }
+        .skills-placement-card {
+            background: #fff;
+            border-radius: 18px;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.10);
+            padding: 32px 28px;
+            margin-bottom: 0;
+        }
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .logo i {
+            /* Add cursor pointer for icons */
+            cursor: default;
+        }
+
+        .user-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .user-badge {
+            padding: 8px 16px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+       .logout-btn {
+            padding: 8px 16px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+
+        .logout-btn i {
+            margin-right: 5px;
+        }
+
+        .logout-btn:hover {
+            background: #ff3742;
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            min-height: calc(100vh - 180px);
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            cursor: pointer; /* Added cursor pointer */
+            transition: all 0.3s ease;
+            color: #666;
+            user-select: none;
+        }
+
+        .nav-item i {
+            flex-shrink: 0;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .content-area {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .my-schedule {
+            background: linear-gradient(135deg, #2ed573 0%, #17c0eb 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 15px;
+            margin-bottom: 20px;
+        }
+
+        .upcoming-class {
+            background: rgba(255, 255, 255, 0.1);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+
+        .timetable-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(7, 1fr);
+            gap: 2px;
+            margin-top: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+
+        .time-slot, .day-header, .class-cell {
+            padding: 12px;
+            text-align: center;
+            background: white;
+            font-size: 0.9em;
+        }
+
+        .day-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+        }
+
+        .time-slot {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #666;
+        }
+
+        .class-cell {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 8px;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            transition: all 0.3s ease;
+        }
+
+        .class-cell.my-class {
+            background: linear-gradient(135deg, #2ed573 0%, #17c0eb 100%);
+            color: white;
+        }
+
+        .classroom-monitor {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .classroom-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .classroom-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .occupied { background-color: #ff4757; }
+        .available { background-color: #2ed573; }
+        .maintenance { background-color: #ffa502; }
+
+        .loading-message {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .error-message {
+            background: rgba(255, 71, 87, 0.1);
+            border: 1px solid rgba(255, 71, 87, 0.3);
+            color: #ff4757;
+            padding: 15px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+
+        .current-time {
+            font-size: 14px;
+            opacity: 0.8;
+            margin-bottom: 10px;
+        }
+
+        .next-class-timer {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 10px;
+            border-radius: 8px;
+            margin-top: 15px;
+            text-align: center;
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+            
+            .timetable-grid {
+                grid-template-columns: 80px repeat(5, 1fr);
+                font-size: 0.8em;
+            }
+        }
+
+          /* --- Peer-to-Peer Tutoring Section Styles --- */
+          /* --- Skills & Placement Section Styles --- */
+        .skills-placement-summary {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+        .summary-card {
+            flex: 1;
+            min-width: 180px;
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.10);
+            padding: 28px 20px 20px 20px;
+            text-align: center;
+            margin-bottom: 10px;
+        }
+        .summary-card.gradient1 {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+        }
+        .summary-card.gradient2 {
+            background: linear-gradient(135deg, #2ed573 0%, #17c0eb 100%);
+            color: #fff;
+        }
+        .summary-card.gradient3 {
+            background: linear-gradient(135deg, #ffb347 0%, #ffcc33 100%);
+            color: #333;
+        }
+        .summary-value {
+            font-size: 2.2em;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
+        .summary-label {
+            font-size: 1.1em;
+            opacity: 0.9;
+        }
+        .skills-profile-card {
+            background: #fff;
+            border-radius: 16px;
+            box-shadow: 0 2px 12px rgba(102,126,234,0.10);
+            padding: 28px 24px 24px 24px;
+            margin-bottom: 0;
+        }
+        .skills-profile-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 18px;
+        }
+        .skills-profile-title {
+            font-size: 1.3em;
+            font-weight: 600;
+            color: #764ba2;
+        }
+        .btn-skill-add {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 8px 18px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+        }
+        .btn-skill-add:hover {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .skills-list {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .skill-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #f8f7fc;
+            border-radius: 10px;
+            padding: 16px 18px;
+            box-shadow: 0 1px 4px rgba(102,126,234,0.04);
+        }
+        .skill-info {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+        .skill-name {
+            font-size: 1.1em;
+            font-weight: 600;
+            color: #333;
+        }
+        .skill-category {
+            font-size: 0.95em;
+            color: #764ba2;
+            opacity: 0.8;
+        }
+        .skill-verify {
+            font-size: 0.95em;
+            font-weight: 500;
+            margin-top: 2px;
+        }
+        .skill-verify.verified {
+            color: #2ed573;
+        }
+        .skill-verify.not-verified {
+            color: #ff4757;
+        }
+        .skill-progress {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+        .progress-bar-bg {
+            width: 120px;
+            height: 12px;
+            background: #e0e7ff;
+            border-radius: 8px;
+            overflow: hidden;
+            margin-right: 8px;
+        }
+        .progress-bar-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #2ed573 100%);
+            border-radius: 8px;
+            transition: width 0.4s cubic-bezier(.4,2,.6,1);
+        }
+        .skill-level {
+            font-size: 0.95em;
+            color: #555;
+        }
+        @media (max-width: 900px) {
+            .skills-placement-summary {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .skills-profile-card {
+                padding: 14px 6px 14px 6px;
+            }
+            .skills-list {
+                gap: 8px;
+            }
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: #f9f9fb;
+            border-radius: 18px;
+            box-shadow: 0 8px 32px rgba(102,126,234,0.08);
+            padding: 32px 28px 32px 28px;
+        }
+        .p2p-header h1 {
+            font-size: 2.1em;
+            font-weight: 700;
+            margin-bottom: 6px;
+            color: #333;
+        }
+        .p2p-header p {
+            color: #666;
+            margin-bottom: 24px;
+        }
+        .stats-grid {
+            display: flex;
+            gap: 24px;
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-radius: 14px;
+            padding: 18px 28px;
+            min-width: 120px;
+            text-align: center;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.10);
+        }
+        .stat-number {
+            font-size: 2em;
+            font-weight: 700;
+        }
+        .stat-label {
+            font-size: 1em;
+            opacity: 0.85;
+        }
+        .booking-form {
+            background: #fff;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(102,126,234,0.06);
+            padding: 24px 20px 18px 20px;
+            margin-bottom: 32px;
+        }
+        .booking-form h3 {
+            margin-bottom: 18px;
+            color: #333;
+        }
+        .form-group {
+            margin-bottom: 16px;
+        }
+        .form-group label {
+            font-weight: 600;
+            color: #444;
+            margin-bottom: 6px;
+            display: block;
+        }
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border-radius: 8px;
+            border: 1px solid #d1d5db;
+            font-size: 1em;
+            margin-top: 4px;
+            background: #f7f8fa;
+            transition: border 0.2s;
+        }
+        .form-group input:focus,
+        .form-group select:focus,
+        .form-group textarea:focus {
+            border: 1.5px solid #667eea;
+            outline: none;
+        }
+        .form-row {
+            display: flex;
+            gap: 18px;
+        }
+        .form-row .form-group {
+            flex: 1;
+        }
+        .btn.btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: #fff;
+            border: none;
+            border-radius: 8px;
+            padding: 10px 22px;
+            font-size: 1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .btn.btn-primary:hover {
+            background: linear-gradient(45deg, #764ba2, #667eea);
+            transform: translateY(-2px) scale(1.03);
+        }
+        .tutoring-grid {
+            margin-top: 10px;
+        }
+        .session-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px 18px;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border-left: 5px solid #667eea;
+        }
+        .session-card strong {
+            color: #333;
+        }
+        .session-card button {
+            margin-top: 10px;
+            background: #2ed573;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            padding: 7px 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .session-card button:hover {
+            background: #20b86b;
+        }
+        #emailPreview {
+            margin-top: 28px;
+            background: #fffbe6;
+            border: 1px solid #ffe58f;
+            border-radius: 10px;
+            padding: 18px 20px;
+        }
+        .email-preview {
+            margin-top: 10px;
+            background: #fff;
+            border-radius: 8px;
+            padding: 14px 16px;
+            border: 1px solid #ffe58f;
+            color: #333;
+        }
+        @media (max-width: 900px) {
+            .container {
+                padding: 18px 6px;
+            }
+            .stats-grid {
+                flex-direction: column;
+                gap: 12px;
+            }
+            .form-row {
+                flex-direction: column;
+                gap: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <i data-lucide="graduation-cap"></i>
+                ClassEase - Smart Classroom Manager
+            </div>
+            <div class="user-info">
+                <div class="user-badge" id="userBadge">Student</div>
+                <button class="logout-btn" onclick="logout()">
+                    <i data-lucide="log-out" style="margin-right: 5px;"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="nav-item active" onclick="showSection('dashboard', event)">
+                    <i data-lucide="activity" aria-hidden="true"></i>
+                    My Dashboard
+                </div>
+                <div class="nav-item active" onclick="showSection('my-schedule', event)">
+                    <i data-lucide="calendar" aria-hidden="true"></i>
+                    My Schedule
+                </div>
+                <div class="nav-item" onclick="showSection('my-classes', event)">
+                    <i data-lucide="book-open" aria-hidden="true"></i>
+                    My Classes
+                </div>
+                <div class="nav-item" onclick="showSection('classroom-info', event)">
+                    <i data-lucide="map-pin" aria-hidden="true"></i>
+                    Classroom Info
+                </div>
+                <div class="nav-item" onclick="showSection('announcements', event)">
+                    <i data-lucide="bell" aria-hidden="true"></i>
+                    Announcements
+                </div>
+                <div class="nav-item" onclick="redirectToLearning()">
+                    <i data-lucide="book" aria-hidden="true"></i>
+                    My Learning Styles
+                </div>
+                <div class="nav-item" onclick="showSection('peer-tutoring', event)">
+                    <i data-lucide="users" aria-hidden="true"></i>
+                    Peer-to-Peer Tutoring
+                </div>
+                <div class="nav-item" onclick="redirectToLibrary()">
+                    <i data-lucide="book" aria-hidden="true"></i>
+                    Digital Library
+                </div>
+                <div class="nav-item" onclick="redirectToNptel()">
+                    <i data-lucide="book" aria-hidden="true"></i>
+                    NPTEL Courses
+                </div>
+                <div class="nav-item" onclick="showSection('placement')">
+                    <i data-lucide="trending-up"></i>
+                    Advanced Features
+                </div>
+    <!-- Modals -->
+    <div id="skillModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('skillModal')">&times;</span>
+            <h3>Update Skill Proficiency</h3>
+            <div class="form-group">
+                <label>Skill Name:</label>
+                <input type="text" id="skillName" placeholder="e.g., JavaScript, Python">
+            </div>
+            <div class="form-group">
+                <label>Proficiency Level (1-10):</label>
+                <input type="range" id="proficiencyLevel" min="1" max="10" value="5" oninput="updateSliderValue(this.value)">
+                <span id="sliderValue">5</span>
+            </div>
+            <div class="form-group">
+                <label>Verification Source:</label>
+                <input type="text" id="verificationSource" placeholder="e.g., Course Certificate, Project">
+            </div>
+            <button class="btn btn-primary" onclick="updateSkill()">Update Skill</button>
+        </div>
+    </div>
+
+    <div id="goalModal" class="modal" style="display:none;">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('goalModal')">&times;</span>
+            <h3>Create New Goal</h3>
+            <div class="form-group">
+                <label>Goal Title:</label>
+                <input type="text" id="goalTitle" placeholder="e.g., Learn React.js">
+            </div>
+            <div class="form-group">
+                <label>Description:</label>
+                <textarea id="goalDescription" placeholder="Describe your goal"></textarea>
+            </div>
+            <div class="form-group">
+                <label>Category:</label>
+                <select id="goalCategory">
+                    <option value="skill">Skill Development</option>
+                    <option value="academic">Academic</option>
+                    <option value="attendance">Attendance</option>
+                    <option value="achievement">Achievement</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Target Date:</label>
+                <input type="date" id="goalTargetDate">
+            </div>
+            <div class="form-group">
+                <label>Target Value:</label>
+                <input type="number" id="goalTargetValue" placeholder="e.g., 10, 3.8, 95">
+            </div>
+            <div class="form-group">
+                <label>Unit:</label>
+                <input type="text" id="goalUnit" placeholder="e.g., modules, GPA, percent">
+            </div>
+            <button class="btn btn-primary" onclick="createGoal()">Create Goal</button>
+        </div>
+    </div>
+                
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area" id="contentArea">
+                <!-- Default content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+// --- Peer-to-Peer Tutoring Logic ---
+let p2pSessions = [];
+let p2pStats = { total: 0, scheduled: 0, completed: 0, emails: 0 };
+
+function bookTutoringSession(event) {
+    event.preventDefault();
+    const tutorEmail = document.getElementById('tutorEmail').value.trim();
+    const subject = document.getElementById('subject').value;
+    const sessionDate = document.getElementById('sessionDate').value;
+    const sessionTime = document.getElementById('sessionTime').value;
+    const duration = document.getElementById('duration').value;
+    const location = document.getElementById('location').value;
+    const topic = document.getElementById('topic').value.trim();
+    if (!tutorEmail || !subject || !sessionDate || !sessionTime || !location) return;
+    const session = {
+        id: Date.now(),
+        tutorEmail, subject, sessionDate, sessionTime, duration, location, topic,
+        status: 'Scheduled',
+        bookedAt: new Date().toLocaleString()
+    };
+    p2pSessions.push(session);
+    p2pStats.total++;
+    p2pStats.scheduled++;
+    p2pStats.emails++;
+    updateP2PStats();
+    renderP2PSessions();
+    showP2PEmailPreview(session);
+    document.getElementById('tutoringForm').reset();
+}
+
+function updateP2PStats() {
+    document.getElementById('totalSessions').textContent = p2pStats.total;
+    document.getElementById('scheduledSessions').textContent = p2pStats.scheduled;
+    document.getElementById('completedSessions').textContent = p2pStats.completed;
+    document.getElementById('emailsSent').textContent = p2pStats.emails;
+}
+
+function renderP2PSessions() {
+    const container = document.getElementById('sessionsContainer');
+    if (!container) return;
+    if (p2pSessions.length === 0) {
+        container.innerHTML = '<div style="color:#888;">No sessions booked yet.</div>';
+        return;
+    }
+    container.innerHTML = p2pSessions.map(sess => `
+        <div class="session-card" style="background:#f8f9fa; border-radius:10px; padding:15px; margin-bottom:10px; box-shadow:0 2px 8px rgba(0,0,0,0.04);">
+            <div><strong>Subject:</strong> ${sess.subject}</div>
+            <div><strong>Tutor:</strong> ${sess.tutorEmail}</div>
+            <div><strong>Date:</strong> ${sess.sessionDate} <strong>Time:</strong> ${sess.sessionTime}</div>
+            <div><strong>Duration:</strong> ${sess.duration}</div>
+            <div><strong>Location:</strong> ${sess.location}</div>
+            <div><strong>Status:</strong> ${sess.status}</div>
+            <div style="margin-top:5px;"><small>Booked at: ${sess.bookedAt}</small></div>
+            ${sess.topic ? `<div style='margin-top:5px;'><strong>Topic:</strong> ${sess.topic}</div>` : ''}
+            <button class="btn btn-success" style="margin-top:10px;" onclick="markP2PCompleted(${sess.id})">Mark as Completed</button>
+        </div>
+    `).join('');
+}
+
+function markP2PCompleted(id) {
+    const sess = p2pSessions.find(s => s.id === id);
+    if (sess && sess.status !== 'Completed') {
+        sess.status = 'Completed';
+        p2pStats.scheduled--;
+        p2pStats.completed++;
+        updateP2PStats();
+        renderP2PSessions();
+    }
+}
+
+function showP2PEmailPreview(session) {
+    const preview = document.getElementById('emailPreview');
+    const content = document.getElementById('emailContent');
+    if (!preview || !content) return;
+    preview.style.display = 'block';
+    content.innerHTML = `
+        <div style="background:#fffbe6; border:1px solid #ffe58f; padding:15px; border-radius:8px;">
+            <strong>To:</strong> ${session.tutorEmail}<br>
+            <strong>Subject:</strong> Peer Tutoring Session Booking<br>
+            <strong>Message:</strong><br>
+            Hello,<br>
+            You have a new peer tutoring session booking.<br>
+            <ul>
+                <li><strong>Subject:</strong> ${session.subject}</li>
+                <li><strong>Date:</strong> ${session.sessionDate}</li>
+                <li><strong>Time:</strong> ${session.sessionTime}</li>
+                <li><strong>Duration:</strong> ${session.duration}</li>
+                <li><strong>Location:</strong> ${session.location}</li>
+                ${session.topic ? `<li><strong>Topic/Notes:</strong> ${session.topic}</li>` : ''}
+            </ul>
+            Please check your dashboard for more details.
+        </div>
+    `;
+}
+
+// Ensure stats and sessions are updated when section is shown
+function showPeerTutoring(contentArea) {
+    contentArea.innerHTML = `
+        <div class="container">
+            <div class="p2p-header">
+                <h1>Peer-to-Peer Tutoring</h1>
+                <p>Book, track, and manage your peer tutoring sessions.</p>
+            </div>
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-number" id="totalSessions">0</div>
+                    <div class="stat-label">Total Sessions</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="scheduledSessions">0</div>
+                    <div class="stat-label">Scheduled</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="completedSessions">0</div>
+                    <div class="stat-label">Completed</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-number" id="emailsSent">0</div>
+                    <div class="stat-label">Emails Sent</div>
+                </div>
+            </div>
+            <form class="booking-form" id="tutoringForm" onsubmit="bookTutoringSession(event)">
+                <h3>Book a Tutoring Session</h3>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="tutorEmail">Tutor Email</label>
+                        <input type="email" id="tutorEmail" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="sessionDate">Date</label>
+                        <input type="date" id="sessionDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="sessionTime">Time</label>
+                        <input type="time" id="sessionTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="duration">Duration (mins)</label>
+                        <input type="number" id="duration" min="15" max="180" value="60" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="location">Location</label>
+                        <input type="text" id="location" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="topic">Topic/Notes</label>
+                    <input type="text" id="topic" placeholder="Optional">
+                </div>
+                <button class="btn btn-primary" type="submit">Book Session</button>
+            </form>
+            <div id="emailPreview" style="display:none;">
+                <h3>Email Preview</h3>
+                <div id="emailContent" class="email-preview"></div>
+            </div>
+            <h3 style="margin-top:32px;">My Tutoring Sessions</h3>
+            <div id="sessionsContainer"></div>
+        </div>
+    `;
+    setTimeout(() => { updateP2PStats(); renderP2PSessions(); }, 0);
+}
+        let currentUser = null;
+        let timetableData = {};
+        let classrooms = [];
+        let announcements = [];
+        let currentClasses = [];
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            lucide.createIcons();
+            checkAuth();
+            loadUserData();
+            showSection('dashboard');
+            updateCurrentTime();
+            setInterval(updateCurrentTime, 60000); // Update every minute
+        });
+
+        function checkAuth() {
+            const userData = sessionStorage.getItem('user');
+            const token = sessionStorage.getItem('token');
+            
+            if (!userData || !token) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            currentUser = JSON.parse(userData);
+            
+            if (currentUser.role !== 'student') {
+                alert('Access denied. Student role required.');
+                window.location.href = 'index.html';
+                return;
+            }
+
+            document.getElementById('userBadge').textContent = `Student - ${currentUser.name || currentUser.email}`;
+        }
+
+        async function loadUserData() {
+            try {
+                const token = sessionStorage.getItem('token');
+                
+                // Load student schedule
+                const scheduleResponse = await fetch('/api/student/schedule', {
+                    headers: {
+                        Authorization: `Bearer ${token}`,
+                    },
+                });
+                
+                if (scheduleResponse.ok) {
+                    timetableData = await scheduleResponse.json();
+                }
+
+                // Load classroom information
+                const classroomsResponse = await fetch('/api/classrooms', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (classroomsResponse.ok) {
+                    classrooms = await classroomsResponse.json();
+                }
+
+                // Load announcements
+                const announcementsResponse = await fetch('/api/student/announcements', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (announcementsResponse.ok) {
+                    announcements = await announcementsResponse.json();
+                }
+
+                // Load current classes
+                const classesResponse = await fetch('/api/student/classes', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (classesResponse.ok) {
+                    currentClasses = await classesResponse.json();
+                }
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                // Use sample data as fallback
+                loadSampleData();
+            }
+        }
+
+        function loadSampleData() {
+            timetableData = {
+                'Monday': {
+                    '9:00': { subject: 'Mathematics', room: 'R101', teacher: 'Dr. Smith' },
+                    '10:00': { subject: 'Physics', room: 'R205', teacher: 'Prof. Johnson' },
+                    '11:00': { subject: 'Chemistry', room: 'LAB1', teacher: 'Dr. Brown' }
+                },
+                'Tuesday': {
+                    '9:00': { subject: 'English', room: 'R102', teacher: 'Ms. Davis' },
+                    '10:00': { subject: 'Biology', room: 'LAB2', teacher: 'Ms. Williams' }
+                },
+                'Wednesday': {
+                    '9:00': { subject: 'Mathematics', room: 'R101', teacher: 'Dr. Smith' },
+                    '2:00': { subject: 'Computer Science', room: 'LAB3', teacher: 'Mr. Anderson' }
+                },
+                'Thursday': {
+                    '10:00': { subject: 'Physics', room: 'R205', teacher: 'Prof. Johnson' },
+                    '11:00': { subject: 'English', room: 'R102', teacher: 'Ms. Davis' }
+                },
+                'Friday': {
+                    '9:00': { subject: 'Chemistry', room: 'LAB1', teacher: 'Dr. Brown' },
+                    '10:00': { subject: 'Biology', room: 'LAB2', teacher: 'Ms. Williams' }
+                }
+            };
+
+            classrooms = [
+                { id: 'R101', name: 'Room 101', status: 'occupied', capacity: 30, currentClass: 'Mathematics', teacher: 'Dr. Smith' },
+                { id: 'R102', name: 'Room 102', status: 'available', capacity: 25 },
+                { id: 'R205', name: 'Room 205', status: 'occupied', capacity: 40, currentClass: 'Physics', teacher: 'Prof. Johnson' },
+                { id: 'LAB1', name: 'Chemistry Lab', status: 'available', capacity: 20 },
+                { id: 'LAB2', name: 'Biology Lab', status: 'occupied', capacity: 24, currentClass: 'Biology', teacher: 'Ms. Williams' },
+                { id: 'LAB3', name: 'Computer Lab', status: 'maintenance', capacity: 30 }
+            ];
+
+            announcements = [
+                {
+                    id: 1,
+                    title: 'Mid-term Exams',
+                    message: 'Mid-term exams start next Monday. Please check your schedule for exam timings and locations.',
+                    type: 'important',
+                    date: '2024-01-13',
+                    author: 'Academic Office'
+                },
+                {
+                    id: 2,
+                    title: 'Library Hours Extended',
+                    message: 'Library will remain open till 9 PM this week for exam preparations. Additional study rooms are also available.',
+                    type: 'info',
+                    date: '2024-01-08',
+                    author: 'Library Administration'
+                },
+                {
+                    id: 3,
+                    title: 'Guest Lecture on AI',
+                    message: 'Special guest lecture on AI and Machine Learning scheduled for Friday at 2 PM in the main auditorium. All students welcome!',
+                    type: 'event',
+                    date: '2024-01-12',
+                    author: 'Computer Science Department'
+                }
+            ];
+
+            currentClasses = [
+                { subject: 'Mathematics', room: 'Room 101', teacher: 'Dr. Smith', schedule: ['Monday 9:00 AM', 'Wednesday 9:00 AM'] },
+                { subject: 'Physics', room: 'Room 205', teacher: 'Prof. Johnson', schedule: ['Monday 10:00 AM', 'Thursday 10:00 AM'] },
+                { subject: 'Chemistry', room: 'Chemistry Lab', teacher: 'Dr. Brown', schedule: ['Monday 11:00 AM', 'Friday 9:00 AM'] },
+                { subject: 'English', room: 'Room 102', teacher: 'Ms. Davis', schedule: ['Tuesday 9:00 AM', 'Thursday 11:00 AM'] },
+                { subject: 'Biology', room: 'Biology Lab', teacher: 'Ms. Williams', schedule: ['Tuesday 10:00 AM', 'Friday 10:00 AM'] },
+                { subject: 'Computer Science', room: 'Computer Lab', teacher: 'Mr. Anderson', schedule: ['Wednesday 2:00 PM'] }
+            ];
+        }
+
+        function showSection(section, event) {
+        if(event) {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+        }
+
+        const contentArea = document.getElementById('contentArea');
+
+        switch(section) {
+            case 'dashboard':
+                showStudentDashboard(contentArea);
+                break;
+            case 'my-schedule':
+                showMySchedule(contentArea);
+                break;
+            case 'my-classes':
+                showMyClasses(contentArea);
+                break;
+            case 'classroom-info':
+                showClassroomInfo(contentArea);
+                break;
+            case 'announcements':
+                showAnnouncements(contentArea);
+                break;
+            case 'peer-tutoring':
+                showPeerTutoring(contentArea);
+                break;
+            case 'placement':
+                showSkillsPlacementTabs(contentArea);
+                break;
+            case 'gamification':
+                showSkillsPlacementTabs(contentArea, 'achievements');
+                break;
+            case 'events':
+                showSkillsPlacementTabs(contentArea, 'events');
+                break;
+            case 'goals':
+                showSkillsPlacementTabs(contentArea, 'goals');
+                break;
+            case 'smart-classroom':
+                showSmartClassroomFeatures(contentArea);
+                break;
+            case 'digital-library':
+                redirectToLibrary();
+                break;
+            default:
+                contentArea.innerHTML = '<p>Section not found.</p>';
+        }
+        lucide.createIcons();
+    }
+
+        // --- Skills & Placement Tabbed Section ---
+        function showSkillsPlacementTabs(contentArea, activeTab = 'skills') {
+            contentArea.innerHTML = `
+                <div class="advanced-header">
+                    <span class="advanced-title">ClassEase - Advanced Features</span>
+                    <span class="advanced-user">Student</span>
+                    <button class="btn btn-success" style="float:right; margin-left:20px;" onclick="showSection('dashboard', event)">Back to Dashboard</button>
+                </div>
+                <div class="advanced-tabs">
+                    <button class="tab-btn ${activeTab==='skills' ? 'active' : ''}" onclick="showSkillsPlacementTabs(document.getElementById('contentArea'),'skills')">Skills & Placement</button>
+                    <button class="tab-btn ${activeTab==='achievements' ? 'active' : ''}" onclick="showSkillsPlacementTabs(document.getElementById('contentArea'),'achievements')">Achievements</button>
+                    <button class="tab-btn ${activeTab==='events' ? 'active' : ''}" onclick="showSkillsPlacementTabs(document.getElementById('contentArea'),'events')">Events & Workshops</button>
+                    <button class="tab-btn ${activeTab==='goals' ? 'active' : ''}" onclick="showSkillsPlacementTabs(document.getElementById('contentArea'),'goals')">Goals & Progress</button>
+                </div>
+                <div class="advanced-tab-content">
+                    ${activeTab==='skills' ? renderSkillsPlacementTab() : ''}
+                    ${activeTab==='achievements' ? renderAchievementsTab() : ''}
+                    ${activeTab==='events' ? renderEventsTab() : ''}
+                    ${activeTab==='goals' ? renderGoalsTab() : ''}
+                </div>
+            `;
+            lucide.createIcons();
+        }
+
+        // --- Tab Content Renderers (placeholders, style as needed) ---
+        function renderSkillsPlacementTab() {
+                        // Modern Skills & Placement section matching the screenshot
+                        return `
+                        <div class="skills-placement-summary">
+                            <div class="summary-card gradient1">
+                                <div class="summary-value">6</div>
+                                <div class="summary-label">Skills Acquired</div>
+                            </div>
+                            <div class="summary-card gradient2">
+                                <div class="summary-value">76%</div>
+                                <div class="summary-label">Industry Readiness</div>
+                            </div>
+                            <div class="summary-card gradient3">
+                                <div class="summary-value">3</div>
+                                <div class="summary-label">Matching Opportunities</div>
+                            </div>
+                        </div>
+                        <div class="skills-profile-card">
+                            <div class="skills-profile-header">
+                                <span class="skills-profile-title">🛠️ My Skill Profile</span>
+                                <button class="btn btn-skill-add">Add Skill</button>
+                            </div>
+                            <div class="skills-list">
+                                ${renderSkillRow('JavaScript', 'Programming', true, 8)}
+                                ${renderSkillRow('React.js', 'Frontend', false, 7)}
+                                ${renderSkillRow('Node.js', 'Backend', true, 6)}
+                                ${renderSkillRow('Python', 'Programming', false, 4)}
+                                ${renderSkillRow('CSS/HTML', 'Frontend', true, 9)}
+                                ${renderSkillRow('PostgreSQL', 'Database', false, 5)}
+                            </div>
+                        </div>
+                        `;
+                }
+
+                function renderSkillRow(name, category, verified, level) {
+                    return `
+                        <div class="skill-row">
+                            <div class="skill-info">
+                                <div class="skill-name">${name}</div>
+                                <div class="skill-category">${category}</div>
+                                <div class="skill-verify ${verified ? 'verified' : 'not-verified'}">
+                                    ${verified ? '✓ Verified' : '⚠️ Not Verified'}
+                                </div>
+                            </div>
+                            <div class="skill-progress">
+                                <div class="progress-bar-bg">
+                                    <div class="progress-bar-fill" style="width:${level*10}%"></div>
+                                </div>
+                                <div class="skill-level">Level ${level}/10</div>
+                            </div>
+                        </div>
+                    `;
+                }
+        function renderAchievementsTab() {
+            return `<div class="skills-placement-card"><h2>Achievements</h2><p>View your badges, points, and milestones here.</p></div>`;
+        }
+        function renderEventsTab() {
+            return `<div class="skills-placement-card"><h2>Events & Workshops</h2><p>See upcoming events and register for workshops.</p></div>`;
+        }
+        function renderGoalsTab() {
+            return `<div class="skills-placement-card"><h2>Goals & Progress</h2><p>Set, track, and achieve your learning goals here.</p></div>`;
+        }
+
+            function redirectToLibrary() {
+                window.open('https://ndl.iitkgp.ac.in/', '_blank');
+            }
+
+            function redirectToNptel() {
+                window.open('https://swayam.gov.in/nc_details/NPTEL', '_blank');
+            }
+
+            function redirectToLearning() {
+                window.open('https://take.quiz-maker.com/QA5AECU', '_blank');
+            }
+
+        function showMySchedule(contentArea) {
+            const nextClass = getNextClass();
+            const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+            const todayClasses = getTodayClasses();
+
+            contentArea.innerHTML = `
+                <div class="my-schedule">
+                    <div class="current-time" id="currentTime"></div>
+                    <h2>📅 Today's Schedule (${today})</h2>
+                    ${nextClass ? `
+                        <div class="upcoming-class">
+                            <h3>Next Class: ${nextClass.subject}</h3>
+                            <p><strong>Time:</strong> ${nextClass.time}</p>
+                            <p><strong>Room:</strong> ${nextClass.room}</p>
+                            <p><strong>Teacher:</strong> ${nextClass.teacher}</p>
+                            <div class="next-class-timer" id="nextClassTimer"></div>
+                        </div>
+                    ` : `
+                        <div class="upcoming-class">
+                            <h3>No more classes today!</h3>
+                            <p>Enjoy your free time or catch up on assignments.</p>
+                        </div>
+                    `}
+                    ${todayClasses.length > 1 ? `
+                        <div style="margin-top: 15px;">
+                            <h4>All classes today:</h4>
+                            ${todayClasses.map(cls => `
+                                <div style="background: rgba(255, 255, 255, 0.1); padding: 10px; margin: 5px 0; border-radius: 5px;">
+                                    <strong>${cls.time}</strong> - ${cls.subject} (${cls.room})
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                </div>
+                <div style="background: white; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.1);">
+                    <h3>Weekly Schedule</h3>
+                    <div id="studentTimetable"></div>
+                </div>
+            `;
+            renderTimetable('studentTimetable');
+            updateNextClassTimer();
+        }
+
+        function showMyClasses(contentArea) {
+            contentArea.innerHTML = `
+                <h2>📘 My Classes</h2>
+                <p style="margin-bottom: 15px; color: #555;">
+                    <br>Below is a list of your enrolled classes with details. This view is read-only.
+                </p>
+                <div style="display: grid; gap: 15px; margin-top: 20px;">
+                    ${currentClasses.map((cls, index) => `
+                        <div style="background: white; padding: 20px; border-radius: 10px; border-left: 5px solid ${getClassColor(index)};">
+                            <h3>${cls.subject}</h3>
+                            <p><strong>Room:</strong> ${cls.room}</p>
+                            <p><strong>Teacher:</strong> ${cls.teacher}</p>
+                            <p><strong>Schedule:</strong> ${cls.schedule.join(', ')}</p>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+}
+
+        function showClassroomInfo(contentArea) {
+            contentArea.innerHTML = `
+                <h2>🏫 Classroom Information</h2>
+                <p style="margin-bottom: 15px; color: #555;">
+                    Classroom availability and status. For booking requests, please contact administration.
+                </p>
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; font-size: 14px;">
+                    <div><span class="status-indicator occupied"></span> Occupied</div>
+                    <div><span class="status-indicator available"></span> Available</div>
+                    <div><span class="status-indicator maintenance"></span> Maintenance</div>
+                </div>
+                <div class="classroom-monitor">
+                    ${classrooms.map(c => `
+                        <div class="classroom-card">
+                            <h3>${c.name}</h3>
+                            <p><span class="status-indicator ${c.status}"></span> ${c.status.charAt(0).toUpperCase() + c.status.slice(1)}</p>
+                            <p><strong>Capacity:</strong> ${c.capacity} students</p>
+                            ${c.currentClass ? `
+                                <p><strong>Current Class:</strong> ${c.currentClass}</p>
+                                <p><strong>Teacher:</strong> ${c.teacher}</p>
+                            ` : ''}
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+
+       function showAnnouncements(contentArea) {
+            contentArea.innerHTML = `
+                <h2>🔔 Announcements</h2>
+                <p style="margin-bottom: 15px; color: #555;">
+                    Stay updated with the latest news and events. This section is read-only.
+                </p>
+                <input type="text" id="announcementSearch" placeholder="Search announcements..." style="width: 100%; padding: 10px; margin-bottom: 20px; border-radius: 8px; border: 1px solid #ccc; font-size: 14px;" oninput="filterAnnouncements()" />
+                <div id="announcementsList" style="display: grid; gap: 15px;">
+                    ${announcements.map(announcement => `
+                        <div class="announcement-item" data-title="${announcement.title.toLowerCase()}" data-message="${announcement.message.toLowerCase()}">
+                            <div style="background: ${getAnnouncementColor(announcement.type)}; padding: 20px; border-radius: 10px; border-left: 5px solid ${getAnnouncementBorderColor(announcement.type)};">
+                                <h3>${getAnnouncementIcon(announcement.type)} ${announcement.title}</h3>
+                                <p>${announcement.message}</p>
+                                <div style="display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; opacity: 0.8;">
+                                    <small>By: ${announcement.author}</small>
+                                    <small>Posted: ${new Date(announcement.date).toLocaleDateString()}</small>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function filterAnnouncements() {
+            const input = document.getElementById('announcementSearch');
+            const filter = input.value.toLowerCase();
+            const items = document.querySelectorAll('#announcementsList .announcement-item');
+
+            items.forEach(item => {
+                const title = item.getAttribute('data-title');
+                const message = item.getAttribute('data-message');
+                if (title.includes(filter) || message.includes(filter)) {
+                    item.style.display = '';
+                } else {
+                    item.style.display = 'none';
+                }
+            });
+        }
+
+
+        function renderTimetable(containerId) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const days = Object.keys(timetableData);
+            if (days.length === 0) {
+                container.innerHTML = '<div class="loading-message">No schedule data available</div>';
+                return;
+            }
+
+            let html = `
+                <div class="timetable-grid">
+                    <div class="day-header">Time</div>
+                    ${days.map(day => `<div class="day-header">${day}</div>`).join('')}
+            `;
+
+            const times = ['9:00','10:00','11:00','2:00','3:00'];
+            times.forEach(time => {
+                html += `<div class="time-slot">${time}</div>`;
+                days.forEach(day => {
+                    let entry = timetableData[day] && timetableData[day][time];
+                    if (entry) {
+                        html += `
+                            <div class="class-cell my-class" title="${entry.teacher}">
+                                <strong>${entry.subject}</strong><br>
+                                <small>${entry.room}</small>
+                            </div>`;
+                    } else {
+                        html += `<div class="class-cell">-</div>`;
+                    }
+                });
+            });
+
+            html += `</div>`;
+            container.innerHTML = html;
+        }
+
+        function getNextClass() {
+        const now = new Date();
+        const currentDay = now.toLocaleDateString('en-US', { weekday: 'long' });
+        const currentTime = now.getHours() * 100 + now.getMinutes();
+
+        if (!timetableData[currentDay]) return null;
+
+        // Use 24-hour times as keys for comparison
+        const times = ['900', '1000', '1100', '1400', '1500'];
+        const displayTimes = ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM'];
+
+        for (let i = 0; i < times.length; i++) {
+            const classTime = parseInt(times[i]);
+            if (classTime > currentTime) {
+                // Convert back to timetable keys (e.g., '9:00', '2:00')
+                let key = times[i];
+                if (key.length === 3) key = key[0] + ':' + key.slice(1);
+                else key = key.slice(0, 2) + ':' + key.slice(2);
+                if (timetableData[currentDay][key]) {
+                    return {
+                        ...timetableData[currentDay][key],
+                        time: displayTimes[i],
+                        timeValue: classTime
+                    };
+                }
+            }
+        }
+        return null;
+    }
+
+        function getTodayClasses() {
+            const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+            if (!timetableData[today]) return [];
+
+            const classes = [];
+            const displayTimes = ['9:00 AM','10:00 AM','11:00 AM','2:00 PM','3:00 PM'];
+            const timeKeys = ['9:00','10:00','11:00','2:00','3:00'];
+
+            timeKeys.forEach((time, index) => {
+                if (timetableData[today][time]) {
+                    classes.push({
+                        ...timetableData[today][time],
+                        time: displayTimes[index]
+                    });
+                }
+            });
+
+            return classes;
+        }
+
+        function updateCurrentTime() {
+            const now = new Date();
+            const timeString = now.toLocaleTimeString('en-US', { 
+                hour: '2-digit', 
+                minute: '2-digit',
+                hour12: true 
+            });
+            const dateString = now.toLocaleDateString('en-US', { 
+                weekday: 'long', 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+            
+            const currentTimeElement = document.getElementById('currentTime');
+            if (currentTimeElement) {
+                currentTimeElement.textContent = `${dateString} - ${timeString}`;
+            }
+        }
+
+        function updateNextClassTimer() {
+            const nextClass = getNextClass();
+            const timerElement = document.getElementById('nextClassTimer');
+            
+            if (!nextClass || !timerElement) return;
+
+            const now = new Date();
+            const classTime = new Date();
+            const hour = Math.floor(nextClass.timeValue / 100);
+            const minute = nextClass.timeValue % 100;
+            classTime.setHours(hour, minute, 0, 0);
+
+            const timeDiff = classTime - now;
+            if (timeDiff > 0) {
+                const hours = Math.floor(timeDiff / (1000 * 60 * 60));
+                const minutes = Math.floor((timeDiff % (1000 * 60 * 60)) / (1000 * 60));
+                timerElement.textContent = `Starts in: ${hours > 0 ? hours + 'h ' : ''}${minutes}m`;
+            } else {
+                timerElement.textContent = 'Class starting now!';
+            }
+        }
+
+        function getClassColor(index) {
+            const colors = ['#667eea', '#2ed573', '#ffa502', '#ff4757', '#17c0eb', '#764ba2'];
+            return colors[index % colors.length];
+        }
+
+        function getAnnouncementColor(type) {
+            switch(type) {
+                case 'important': return 'rgba(255, 71, 87, 0.1)';
+                case 'info': return 'rgba(102, 126, 234, 0.1)';
+                case 'event': return 'rgba(255, 165, 2, 0.1)';
+                default: return 'rgba(46, 213, 115, 0.1)';
+            }
+        }
+
+        function getAnnouncementBorderColor(type) {
+            switch(type) {
+                case 'important': return '#ff4757';
+                case 'info': return '#667eea';
+                case 'event': return '#ffa502';
+                default: return '#2ed573';
+            }
+        }
+
+        function getAnnouncementIcon(type) {
+            switch(type) {
+                case 'important': return '⚠️';
+                case 'info': return 'ℹ️';
+                case 'event': return '📅';
+                default: return '📢';
+            }
+        }
+
+        function logout() {
+            sessionStorage.removeItem('user');
+            sessionStorage.removeItem('token');
+            window.location.href = 'index.html';
+        }
+
+        function showStudentDashboard(contentArea) {
+            // Example progress data (replace with real data if available)
+            const progress = {
+                attendance: 92,
+                avgGrade: 8.4,
+                completedAssignments: 18,
+                totalAssignments: 20
+            };
+            contentArea.innerHTML = `
+                <h2>🎓 Student Dashboard</h2>
+                <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-bottom: 30px;">
+                    <div style="flex:1; min-width:220px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(102,126,234,0.15);">
+                        <h3>Attendance</h3>
+                        <div style="font-size:2.5em; font-weight:bold;">${progress.attendance}%</div>
+                        <div style="margin-top:10px; background:rgba(255,255,255,0.2); border-radius:8px; height:16px; width:100%;">
+                            <div style="height:100%; width:${progress.attendance}%; background:#2ed573; border-radius:8px;"></div>
+                        </div>
+                    </div>
+                    <div style="flex:1; min-width:220px; background: linear-gradient(135deg, #2ed573 0%, #17c0eb 100%); color: white; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(46,213,115,0.15);">
+                        <h3>Average Grade</h3>
+                        <div style="font-size:2.5em; font-weight:bold;">${progress.avgGrade}/10</div>
+                    </div>
+                    <div style="flex:1; min-width:220px; background: linear-gradient(135deg, #ffb347 0%, #ffcc33 100%); color: #333; border-radius: 15px; padding: 30px; box-shadow: 0 10px 30px rgba(255,179,71,0.15);">
+                        <h3>Assignments</h3>
+                        <div style="font-size:2.5em; font-weight:bold;">${progress.completedAssignments}/${progress.totalAssignments}</div>
+                        <div style="margin-top:10px; background:rgba(0,0,0,0.08); border-radius:8px; height:16px; width:100%;">
+                            <div style="height:100%; width:${Math.round(100*progress.completedAssignments/progress.totalAssignments)}%; background:#667eea; border-radius:8px;"></div>
+                        </div>
+                    </div>
+                </div>
+                <div style="margin-top:40px;">
+                    <h3>📊 Monthly Progress Overview</h3>
+                    <canvas id="progressBarGraph" height="120"></canvas>
+                </div>
+                <div style="margin-top:30px;">
+                    <h3>Welcome, ${currentUser ? (currentUser.name || currentUser.email) : 'Student'}!</h3>
+                    <p>Here you can track your academic progress, attendance, and assignments at a glance.</p>
+                </div>
+            `;
+            // Example: Simulated monthly progress data (replace with real data if available)
+            const months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+            const progressData = [72, 80, 78, 85, 90, 88, 92, 95, 93, 97, 98, 99];
+            setTimeout(() => {
+                const ctx = document.getElementById('progressBarGraph').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: months,
+                        datasets: [{
+                            label: 'Progress (%)',
+                            data: progressData,
+                            backgroundColor: 'rgba(102,126,234,0.85)',
+                            borderRadius: 8,
+                            maxBarThickness: 38
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        plugins: {
+                            legend: { display: false },
+                            title: { display: false }
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                max: 100,
+                                ticks: { stepSize: 20 }
+                            }
+                        }
+                    }
+                });
+            }, 0);
+        }
+
+                
+
+        // Auto-refresh data every 5 minutes
+        setInterval(loadUserData, 300000);
+        
+        // Update next class timer every minute
+        setInterval(updateNextClassTimer, 60000);
+    </script>
+</body>
+</html>
