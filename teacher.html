@@ -1,0 +1,1478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teacher Dashboard - Smart Classroom</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/lucide/0.263.1/lucide.min.js"></script>
+    <script src="https://unpkg.com/html5-qrcode@2.3.8/minified/html5-qrcode.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .header {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            font-size: 24px;
+            font-weight: bold;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .user-info {
+            display: flex;
+            gap: 15px;
+            align-items: center;
+        }
+
+        .user-badge {
+            padding: 8px 16px;
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 600;
+        }
+
+        .logout-btn {
+            padding: 8px 16px;
+            background: #ff4757;
+            color: white;
+            border: none;
+            border-radius: 15px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .logout-btn:hover {
+            background: #ff3742;
+            transform: translateY(-2px);
+        }
+
+        .main-content {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 30px;
+            min-height: calc(100vh - 180px);
+        }
+
+        .sidebar {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .nav-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px 20px;
+            margin-bottom: 10px;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            color: #666;
+        }
+
+        .nav-item:hover, .nav-item.active {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            transform: translateX(5px);
+            box-shadow: 0 10px 25px rgba(102, 126, 234, 0.3);
+        }
+
+        .content-area {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            border-radius: 20px;
+            padding: 30px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .dashboard-stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 15px 30px rgba(102, 126, 234, 0.3);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card:hover {
+            transform: translateY(-5px) scale(1.02);
+            box-shadow: 0 20px 40px rgba(102, 126, 234, 0.4);
+        }
+
+        .stat-number {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            opacity: 0.9;
+            font-size: 0.9em;
+        }
+
+        .edit-mode-toggle {
+            background: #ffa502;
+            color: white;
+            padding: 10px 20px;
+            border: none;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-bottom: 20px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .edit-mode-toggle:hover {
+            background: #ff9500;
+            transform: translateY(-2px);
+        }
+
+        .edit-mode-toggle.active {
+            background: #ff4757;
+        }
+
+        .timetable-grid {
+            display: grid;
+            grid-template-columns: 100px repeat(5,1fr);
+            gap: 2px;
+            margin-top: 20px;
+            background: #f0f0f0;
+            border-radius: 10px;
+            overflow-x: auto;
+            min-width: 100%;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .time-slot, .day-header, .class-cell {
+            padding: 12px 8px;
+            text-align: center;
+            background: white;
+            font-size: 1em;
+            min-width: 90px;
+        }
+
+        .time-slot {
+            background: #f8f9fa;
+            font-weight: 600;
+            color: #666;
+            position: sticky;
+            left: 0;
+            z-index: 2;
+        }
+
+        .day-header {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+            font-weight: bold;
+            position: sticky;
+            top: 0;
+            z-index: 3;
+        }
+
+        /* Responsive override for small screens (inside your media query) */
+        @media (max-width: 900px) {
+            .timetable-grid {
+                grid-template-columns: minmax(80px, 120px) repeat(7, minmax(120px, 1fr));
+                font-size: 0.8em;
+            }
+        }
+        .class-cell {
+            background: linear-gradient(135deg, #a8edea 0%, #fed6e3 100%);
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            min-height: 60px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            position: relative;
+        }
+
+        .class-cell:hover {
+            transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+            z-index: 10;
+        }
+
+        .class-cell.editable {
+            border: 2px dashed #667eea;
+        }
+
+        .class-cell.my-class {
+            background: linear-gradient(135deg, #2ed573 0%, #17c0eb 100%);
+            color: white;
+        }
+
+        .classroom-monitor {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .classroom-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #667eea;
+            transition: all 0.3s ease;
+        }
+
+        .classroom-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.15);
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .occupied { background-color: #ff4757; }
+        .available { background-color: #2ed573; }
+        .maintenance { background-color: #ffa502; }
+
+        /* Modal Styles */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+        }
+
+        .modal-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: white;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 25px 50px rgba(0, 0, 0, 0.3);
+            max-width: 500px;
+            width: 90%;
+            animation: slideIn 0.3s ease;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideIn {
+            from { transform: translate(-50%, -60%); opacity: 0; }
+            to { transform: translate(-50%, -50%); opacity: 1; }
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-decoration: none;
+            display: inline-block;
+            text-align: center;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn-secondary {
+            background: #f8f9fa;
+            color: #666;
+            border: 2px solid #e9ecef;
+        }
+
+        .btn-secondary:hover {
+            background: #e9ecef;
+            transform: translateY(-2px);
+        }
+
+        .btn-danger {
+            background: #ff4757;
+            color: white;
+        }
+
+        .btn-danger:hover {
+            background: #ff3742;
+            transform: translateY(-2px);
+        }
+
+        .btn-success {
+            background: #2ed573;
+            color: white;
+        }
+
+        .btn-success:hover {
+            background: #26d062;
+            transform: translateY(-2px);
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: 600;
+            color: #555;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e9ecef;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s ease;
+        }
+
+        .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .quick-action-card {
+            background: white;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        .class-list-item {
+            background: white;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 15px;
+            border-left: 5px solid #667eea;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transition: all 0.3s ease;
+        }
+
+        .class-list-item:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+        }
+
+        .success-message, .error-message {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-weight: 600;
+        }
+
+        .success-message {
+            background: rgba(46, 213, 115, 0.1);
+            color: #2ed573;
+            border: 1px solid rgba(46, 213, 115, 0.3);
+        }
+
+        .error-message {
+            background: rgba(255, 71, 87, 0.1);
+            color: #ff4757;
+            border: 1px solid rgba(255, 71, 87, 0.3);
+        }
+
+        /* Responsive Design */
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+            
+            .sidebar {
+                position: static;
+            }
+            
+            .timetable-grid {
+                grid-template-columns: 80px repeat(5, 1fr);
+                font-size: 0.8em;
+            }
+        }
+
+        #qrCodeContainer {
+      display: none;
+      margin-top: 15px;
+    }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <i data-lucide="graduation-cap"></i>
+                Smart Classroom Manager
+            </div>
+            <div class="user-info">
+                <div class="user-badge" id="userBadge">Teacher</div>
+                <button class="logout-btn" onclick="logout()">
+                    <i data-lucide="log-out" style="margin-right: 5px;"></i>
+                    Logout
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <div class="nav-item active" onclick="showSection('dashboard')">
+                    <i data-lucide="home"></i>
+                    Dashboard
+                </div>
+                <div class="nav-item" onclick="showSection('timetable')">
+                    <i data-lucide="calendar"></i>
+                    Edit Timetable
+                </div>
+                <div class="nav-item" onclick="showSection('my-classes')">
+                    <i data-lucide="users"></i>
+                    My Classes
+                </div>
+                <div class="nav-item" onclick="showSection('classrooms')">
+                    <i data-lucide="monitor"></i>
+                    Manage Classrooms
+                </div>
+                <div class="nav-item" onclick="showSection('reports')">
+                    <i data-lucide="bar-chart"></i>
+                    Reports
+                </div>
+                <div class="nav-item" onclick="showSection('smart-classroom', event)">
+                    <i data-lucide="cpu" aria-hidden="true"></i>
+                    Smart Classroom Features
+                </div>
+            </div>
+
+            <!-- Content Area -->
+            <div class="content-area" id="contentArea">
+                <!-- Default content will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Class Modal -->
+    <div id="editClassModal" class="modal">
+        <div class="modal-content">
+            <h3 id="modalTitle">Edit Class</h3>
+            <div class="form-group">
+                <label>Subject:</label>
+                <input type="text" id="editSubject" placeholder="Enter subject name">
+            </div>
+            <div class="form-group">
+                <label>Room:</label>
+                <select id="editRoom">
+                    <option value="">Select Room</option>
+                    <option value="Room 101">Room 101</option>
+                    <option value="Room 102">Room 102</option>
+                    <option value="Room 205">Room 205</option>
+                    <option value="Chemistry Lab">Chemistry Lab</option>
+                    <option value="Biology Lab">Biology Lab</option>
+                    <option value="Computer Lab">Computer Lab</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Expected Students:</label>
+                <input type="number" id="editStudents" min="1" max="50" placeholder="Number of students">
+            </div>
+            <div class="form-group">
+                <label>Notes (Optional):</label>
+                <textarea id="editNotes" rows="3" placeholder="Additional notes or requirements"></textarea>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-primary" onclick="saveClassEdit()">Save</button>
+                <button class="btn btn-secondary" onclick="cancelClassEdit()">Cancel</button>
+                <button class="btn btn-danger" onclick="deleteClass()" id="deleteBtn">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Book Room Modal -->
+    <div id="bookRoomModal" class="modal">
+        <div class="modal-content">
+            <h3>Book Classroom</h3>
+            <div class="form-group">
+                <label>Room:</label>
+                <input type="text" id="bookRoomName" readonly>
+            </div>
+            <div class="form-group">
+                <label>Date:</label>
+                <input type="date" id="bookDate">
+            </div>
+            <div class="form-group">
+                <label>Start Time:</label>
+                <input type="time" id="bookStartTime">
+            </div>
+            <div class="form-group">
+                <label>End Time:</label>
+                <input type="time" id="bookEndTime">
+            </div>
+            <div class="form-group">
+                <label>Purpose:</label>
+                <input type="text" id="bookPurpose" placeholder="e.g., Extra class, Meeting">
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
+                <button class="btn btn-success" onclick="confirmBooking()">Book Room</button>
+                <button class="btn btn-secondary" onclick="cancelBooking()">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentUser = null;
+        let isEditMode = false;
+        let editingCell = null;
+        let timetableData = {};
+        let classrooms = [];
+        let teacherStats = {};
+        let myClasses = [];
+
+        // Initialize application
+        document.addEventListener('DOMContentLoaded', function() {
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+            checkAuth();
+            loadUserData();
+            showSection('dashboard');
+
+            // QR code scanner initialization (guarded)
+            if (typeof Html5QrcodeScanner !== 'undefined') {
+                const qrResult = document.getElementById('qr-result');
+                const finalStatus = document.getElementById('finalStatus');
+                function onScanSuccess(decodedText, decodedResult) {
+                    if (decodedText === sessionToken) {
+                        qrResult.textContent = 'QR Code valid. You may proceed to GPS check-in.';
+                        qrResult.style.color = 'green';
+                        qrScanned = true;
+                        checkFinalStatus();
+                        html5QrcodeScanner.clear(); // Stop scanning after success
+                    } else {
+                        qrResult.textContent = 'Invalid QR Code scanned.';
+                        qrResult.style.color = 'red';
+                    }
+                }
+                function onScanFailure(error) {}
+                const html5QrcodeScanner = new Html5QrcodeScanner(
+                    "qr-reader", { fps: 10, qrbox: 250 });
+                html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+            }
+        });
+
+        function checkAuth() {
+            const userData = sessionStorage.getItem('user');
+            const token = sessionStorage.getItem('token');
+
+            if (!userData || !token) {
+                // window.location.href = 'index.html';
+                document.getElementById('userBadge').textContent = '⚠️ Not Authenticated';
+                return;
+            }
+
+            currentUser = JSON.parse(userData);
+
+            if (currentUser.role !== 'teacher') {
+                // alert('Access denied. Teacher role required.');
+                document.getElementById('userBadge').textContent = '⚠️ Not a Teacher';
+                return;
+            }
+
+            document.getElementById('userBadge').textContent = `Teacher - ${currentUser.name || currentUser.email}`;
+        }
+
+        async function loadUserData() {
+            try {
+                const token = sessionStorage.getItem('token');
+                
+                // Load teacher's timetable
+                const timetableResponse = await fetch('http://localhost:5000/api/teacher/timetable', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (timetableResponse.ok) {
+                    timetableData = await timetableResponse.json();
+                }
+
+                // Load teacher stats
+                const statsResponse = await fetch('http://localhost:5000/api/teacher/stats', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (statsResponse.ok) {
+                    teacherStats = await statsResponse.json();
+                }
+
+                // Load classrooms
+                const classroomsResponse = await fetch('http://localhost:5000/api/classrooms', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (classroomsResponse.ok) {
+                    classrooms = await classroomsResponse.json();
+                }
+
+                // Load teacher's classes
+                const classesResponse = await fetch('http://localhost:5000/api/teacher/classes', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                
+                if (classesResponse.ok) {
+                    myClasses = await classesResponse.json();
+                }
+
+            } catch (error) {
+                console.error('Error loading data:', error);
+                loadSampleData();
+            }
+        }
+
+        function loadSampleData() {
+            timetableData = {
+                'Monday': {
+                    '9:00': { subject: 'Mathematics', room: 'Room 101', teacher: currentUser.name || 'Teacher', students: 28 },
+                    '10:00': { subject: 'Physics', room: 'Room 205', teacher: currentUser.name || 'Teacher', students: 35 }
+                },
+                'Tuesday': {
+                    '9:00': { subject: 'Mathematics', room: 'Room 101', teacher: currentUser.name || 'Teacher', students: 30 },
+                    '11:00': { subject: 'Physics Lab', room: 'Physics Lab', teacher: currentUser.name || 'Teacher', students: 20 }
+                },
+                'Wednesday': {
+                    '10:00': { subject: 'Mathematics', room: 'Room 101', teacher: currentUser.name || 'Teacher', students: 25 }
+                },
+                'Thursday': {
+                    '9:00': { subject: 'Physics', room: 'Room 205', teacher: currentUser.name || 'Teacher', students: 32 },
+                    '2:00': { subject: 'Mathematics', room: 'Room 101', teacher: currentUser.name || 'Teacher', students: 28 }
+                },
+                'Friday': {
+                    '11:00': { subject: 'Physics Lab', room: 'Physics Lab', teacher: currentUser.name || 'Teacher', students: 18 }
+                }
+            };
+
+            teacherStats = {
+                classesToday: 5,
+                totalStudents: 158,
+                weeklyClasses: 8,
+                subjects: 2,
+                avgAttendance: 92.5
+            };
+
+            classrooms = [
+                { id: 'R101', name: 'Room 101', status: 'available', capacity: 30, equipment: ['Projector', 'Whiteboard'] },
+                { id: 'R102', name: 'Room 102', status: 'occupied', capacity: 25, currentClass: 'English', teacher: 'Ms. Davis' },
+                { id: 'R205', name: 'Room 205', status: 'available', capacity: 40, equipment: ['Smart Board', 'Sound System'] },
+                { id: 'LAB1', name: 'Physics Lab', status: 'maintenance', capacity: 20, equipment: ['Lab Equipment', 'Projector'] },
+                { id: 'LAB2', name: 'Chemistry Lab', status: 'available', capacity: 24, equipment: ['Fume Hoods', 'Lab Benches'] },
+                { id: 'LAB3', name: 'Computer Lab', status: 'occupied', capacity: 30, currentClass: 'Programming', teacher: 'Mr. Wilson' }
+            ];
+
+            myClasses = [
+                { 
+                    id: 1, 
+                    subject: 'Mathematics', 
+                    students: 95, 
+                    avgAttendance: 94.2, 
+                    nextClass: 'Monday 9:00 AM',
+                    room: 'Room 101',
+                    schedule: ['Mon 9:00', 'Tue 9:00', 'Wed 10:00', 'Thu 2:00']
+                },
+                { 
+                    id: 2, 
+                    subject: 'Physics', 
+                    students: 63, 
+                    avgAttendance: 89.8, 
+                    nextClass: 'Monday 10:00 AM',
+                    room: 'Room 205',
+                    schedule: ['Mon 10:00', 'Thu 9:00']
+                }
+            ];
+        }
+
+        function showSection(section, event) {
+            if(event) {
+                document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+                event.target.closest('.nav-item').classList.add('active');
+            }
+
+            const contentArea = document.getElementById('contentArea');
+            
+            switch(section) {
+                case 'dashboard':
+                    showDashboard(contentArea);
+                    break;
+                case 'timetable':
+                    showTimetable(contentArea);
+                    break;
+                case 'my-classes':
+                    showMyClasses(contentArea);
+                    break;
+                case 'classrooms':
+                    showClassrooms(contentArea);
+                    break;
+                case 'reports':
+                    showReports(contentArea);
+                    break;
+                case 'smart-classroom':  // <-- Add this case
+                    showSmartClassroomFeatures(contentArea);
+                    break;
+                default:
+                    contentArea.innerHTML = '<p>Section not found.</p>';
+            }
+            if (typeof lucide !== 'undefined' && lucide.createIcons) {
+                lucide.createIcons();
+            }
+        }
+
+
+        function showDashboard(contentArea) {
+            contentArea.innerHTML = `
+                <h2>📊 Teacher Dashboard</h2>
+                <div class="dashboard-stats">
+                    <div class="stat-card">
+                        <div class="stat-number">${teacherStats.classesToday || 0}</div>
+                        <div class="stat-label">Classes Today</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${teacherStats.totalStudents || 0}</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${teacherStats.weeklyClasses || 0}</div>
+                        <div class="stat-label">Weekly Classes</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-number">${teacherStats.avgAttendance || 0}%</div>
+                        <div class="stat-label">Avg Attendance</div>
+                    </div>
+                </div>
+                
+                <div class="quick-action-card">
+                    <h3>Quick Actions</h3>
+                    <div style="display: flex; gap: 15px; margin-top: 15px; flex-wrap: wrap;">
+                        <button class="btn btn-primary" onclick="showSection('timetable')">
+                            <i data-lucide="calendar" style="margin-right: 8px;"></i>
+                            Edit Timetable
+                        </button>
+                        <button class="btn btn-secondary" onclick="showSection('classrooms')">
+                            <i data-lucide="monitor" style="margin-right: 8px;"></i>
+                            Book Classroom
+                        </button>
+                        <button class="btn btn-secondary" onclick="showSection('reports')">
+                            <i data-lucide="bar-chart" style="margin-right: 8px;"></i>
+                            View Reports
+                        </button>
+                        <button class="btn btn-success" onclick="openAddClassModal()">
+                            <i data-lucide="plus" style="margin-right: 8px;"></i>
+                            Add New Class
+                        </button>
+                    </div>
+                </div>
+
+                <div class="quick-action-card">
+                    <h3>Today's Schedule</h3>
+                    <div style="margin-top: 15px;">
+                        ${getTodayClasses().map(cls => `
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px; margin: 5px 0; background: #f8f9fa; border-radius: 8px;">
+                                <div>
+                                    <strong>${cls.time}</strong> - ${cls.subject}
+                                    <br><small>${cls.room} (${cls.students} students)</small>
+                                </div>
+                                <div class="status-indicator ${cls.status}"></div>
+                            </div>
+                        `).join('') || '<p>No classes scheduled for today.</p>'}
+                    </div>
+                </div>
+            `;
+        }
+
+        function showTimetable(contentArea) {
+            contentArea.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>🗓 Edit Timetable</h2>
+                    <div>
+                        <button class="edit-mode-toggle" id="editToggle" onclick="toggleEditMode()">
+                            ${isEditMode ? 'Exit Edit Mode' : 'Enter Edit Mode'}
+                        </button>
+                    </div>
+                </div>
+                
+                ${isEditMode ? '<div class="success-message">Edit mode active. Click on time slots to add/edit classes.</div>' : ''}
+                
+                <div id="teacherTimetable"></div>
+            `;
+            renderTimetable('teacherTimetable', isEditMode);
+        }
+
+
+        function showMyClasses(contentArea) {
+            contentArea.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2>👩‍🏫 My Classes</h2>
+                    <button class="btn btn-primary" onclick="openAddClassModal()">
+                        <i data-lucide="plus" style="margin-right: 8px;"></i>
+                        Add New Class
+                    </button>
+                </div>
+                
+                <div style="display: grid; gap: 15px;">
+                    ${myClasses.map(cls => `
+                        <div class="class-list-item">
+                            <div style="display: flex; justify-content: space-between; align-items: start;">
+                                <div style="flex: 1;">
+                                    <h3>${cls.subject}</h3>
+                                                                        <p><strong>Room:</strong> ${cls.room}</p>
+                                    <p><strong>Students Enrolled:</strong> ${cls.students}</p>
+                                    <p><strong>Average Attendance:</strong> ${cls.avgAttendance}%</p>
+                                    <p><strong>Next Class:</strong> ${cls.nextClass}</p>
+                                    <p><strong>Schedule:</strong> ${cls.schedule.join(', ')}</p>
+                                </div>
+                                <div>
+                                    <button class="btn btn-secondary" onclick="editClass(${cls.id})">
+                                        <i data-lucide="edit"></i> Edit
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function showClassrooms(contentArea) {
+            contentArea.innerHTML = `
+                <h2>🏫 Manage Classrooms</h2>
+                <div style="display: flex; gap: 15px; margin-bottom: 20px; font-size: 14px;">
+                    <div><span class="status-indicator occupied"></span> Occupied</div>
+                    <div><span class="status-indicator available"></span> Available</div>
+                    <div><span class="status-indicator maintenance"></span> Maintenance</div>
+                </div>
+                <div class="classroom-monitor">
+                    ${classrooms.map(room => `
+                        <div class="classroom-card">
+                            <h3>${room.name}</h3>
+                            <p><span class="status-indicator ${room.status}"></span> ${room.status.charAt(0).toUpperCase() + room.status.slice(1)}</p>
+                            <p><strong>Capacity:</strong> ${room.capacity} students</p>
+                            ${room.equipment ? `<p><strong>Equipment:</strong> ${room.equipment.join(', ')}</p>` : ''}
+                            ${room.currentClass ? `<p><strong>Current Class:</strong> ${room.currentClass}</p>` : ''}
+                            ${room.teacher ? `<p><strong>Teacher:</strong> ${room.teacher}</p>` : ''}
+                            <button class="btn btn-primary" onclick="openBookRoomModal('${room.name}')">Book Room</button>
+                        </div>
+                    `).join('')}
+                </div>
+            `;
+        }
+
+        function showReports(contentArea) {
+            contentArea.innerHTML = `
+                <h2>📈 Reports</h2>
+                <p>Reports functionality coming soon.</p>
+            `;
+        }
+
+        function getTodayClasses() {
+            const today = new Date().toLocaleDateString('en-US', { weekday: 'long' });
+            if (!timetableData[today]) return [];
+
+            const displayTimes = ['9:00 AM', '10:00 AM', '11:00 AM', '2:00 PM', '3:00 PM'];
+            const timeKeys = ['9:00', '10:00', '11:00', '2:00', '3:00'];
+
+            const classes = [];
+            timeKeys.forEach((time, index) => {
+                if (timetableData[today][time]) {
+                    const cls = timetableData[today][time];
+                    classes.push({
+                        subject: cls.subject,
+                        room: cls.room,
+                        students: cls.students || 0,
+                        time: displayTimes[index],
+                        status: 'available' // or logic to determine status
+                    });
+                }
+            });
+            return classes;
+        }
+
+        function renderTimetable(containerId, editable = false) {
+            const container = document.getElementById(containerId);
+            if (!container) return;
+
+            const days = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'];
+            const times = ['9:00', '10:00', '11:00', '2:00', '3:00'];
+
+            let html = `
+                <div style="overflow-x:auto;width:100%"><div class="timetable-grid">
+                    <div class="day-header">Time</div>
+                    ${days.map(day => `<div class="day-header">${day}</div>`).join('')}
+            `;
+
+            times.forEach(time => {
+                html += `<div class="time-slot">${time}</div>`;
+                days.forEach(day => {
+                    const entry = timetableData[day] && timetableData[day][time];
+                    if (entry) {
+                        html += `
+                            <div class="class-cell ${editable ? 'editable' : 'my-class'}" 
+                                title="Teacher: ${entry.teacher}\nStudents: ${entry.students || 'N/A'}"
+                                data-day="${day}" data-time="${time}">
+                                <strong>${entry.subject}</strong><br>
+                                <small>${entry.room}</small>
+                            </div>`;
+                    } else {
+                        html += `<div class="class-cell ${editable ? 'editable' : ''}" data-day="${day}" data-time="${time}">-</div>`;
+                    }
+                });
+            });
+
+            html += `</div></div>`;
+            container.innerHTML = html;
+
+            if (editable) {
+                // Add click listeners for editing
+                container.querySelectorAll('.class-cell.editable').forEach(cell => {
+                    cell.addEventListener('click', () => {
+                        openEditClassModal(cell.dataset.day, cell.dataset.time);
+                    });
+                });
+            }
+        }
+
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            showSection('timetable');
+        }
+
+        function openEditClassModal(day, time) {
+            editingCell = { day, time };
+            const classData = timetableData[day] && timetableData[day][time];
+
+            document.getElementById('modalTitle').textContent = classData ? 'Edit Class' : 'Add Class';
+            document.getElementById('editSubject').value = classData ? classData.subject : '';
+            document.getElementById('editRoom').value = classData ? classData.room : '';
+            document.getElementById('editStudents').value = classData ? classData.students || '' : '';
+            document.getElementById('editNotes').value = classData ? classData.notes || '' : '';
+            document.getElementById('deleteBtn').style.display = classData ? 'inline-block' : 'none';
+
+            showModal('editClassModal');
+        }
+
+        function openAddClassModal() {
+            editingCell = null;
+            editingClassId = null;
+            document.getElementById('modalTitle').textContent = 'Add New Class';
+            document.getElementById('editSubject').value = '';
+            document.getElementById('editRoom').value = '';
+            document.getElementById('editStudents').value = '';
+            document.getElementById('editNotes').value = '';
+            document.getElementById('deleteBtn').style.display = 'none';
+
+            showModal('editClassModal');
+        }
+
+
+        function saveClassEdit() {
+            const subject = document.getElementById('editSubject').value.trim();
+            const room = document.getElementById('editRoom').value;
+            const students = parseInt(document.getElementById('editStudents').value, 10);
+            const notes = document.getElementById('editNotes').value.trim();
+
+            if (!subject || !room || isNaN(students) || students < 1) {
+                alert('Please fill in all required fields correctly.');
+                return;
+            }
+
+            if (editingCell) {
+                // Editing a timetable cell
+                if (!timetableData[editingCell.day]) timetableData[editingCell.day] = {};
+                timetableData[editingCell.day][editingCell.time] = {
+                    subject,
+                    room,
+                    teacher: currentUser .name || 'Teacher',
+                    students,
+                    notes
+                };
+                console.log('Updated timetableData:', timetableData);
+
+                // After saving, stay in timetable edit mode and refresh timetable view
+                isEditMode = true;
+                showSection('timetable');
+            } else {
+                // Editing from "My Classes" list or adding new class
+                // Check if editing an existing class in myClasses by matching subject and room (or you can store editingClassId)
+                // For simplicity, assume editingClassId is stored globally when editing from myClasses
+                if (typeof editingClassId !== 'undefined' && editingClassId !== null) {
+                    const clsIndex = myClasses.findIndex(c => c.id === editingClassId);
+                    if (clsIndex !== -1) {
+                        myClasses[clsIndex] = {
+                            ...myClasses[clsIndex],
+                            subject,
+                            room,
+                            students,
+                            notes
+                        };
+                        console.log('Updated myClasses:', myClasses);
+                    }
+                    editingClassId = null; // reset after editing
+                    showSection('my-classes');
+                } else {
+                    // Adding a new class (no editingCell and no editingClassId)
+                    // You can add it to Monday 9:00 by default or prompt user for day/time
+                    if (!timetableData['Monday']) timetableData['Monday'] = {};
+                    timetableData['Monday']['9:00'] = {
+                        subject,
+                        room,
+                        teacher: currentUser .name || 'Teacher',
+                        students,
+                        notes
+                    };
+                    console.log('Added new class to Monday 9:00:', timetableData['Monday']['9:00']);
+                    isEditMode = true;
+                    showSection('timetable');
+                }
+            }
+
+            hideModal('editClassModal');
+        }
+
+
+
+        function cancelClassEdit() {
+            hideModal('editClassModal');
+        }
+
+        function deleteClass() {
+            if (editingCell) {
+                if (confirm('Are you sure you want to delete this class?')) {
+                    if (timetableData[editingCell.day]) {
+                        delete timetableData[editingCell.day][editingCell.time];
+                    }
+                    hideModal('editClassModal');
+                    showSection('timetable');
+                }
+            } else if (editingClassId !== null) {
+                if (confirm('Are you sure you want to delete this class?')) {
+                    myClasses = myClasses.filter(c => c.id !== editingClassId);
+                    editingClassId = null;
+                    hideModal('editClassModal');
+                    showSection('my-classes');
+                }
+            }
+        }
+
+
+        function openBookRoomModal(roomName) {
+            document.getElementById('bookRoomName').value = roomName;
+            document.getElementById('bookDate').value = '';
+            document.getElementById('bookStartTime').value = '';
+            document.getElementById('bookEndTime').value = '';
+            document.getElementById('bookPurpose').value = '';
+            showModal('bookRoomModal');
+        }
+
+        function confirmBooking() {
+            const room = document.getElementById('bookRoomName').value;
+            const date = document.getElementById('bookDate').value;
+            const startTime = document.getElementById('bookStartTime').value;
+            const endTime = document.getElementById('bookEndTime').value;
+            const purpose = document.getElementById('bookPurpose').value.trim();
+
+            if (!date || !startTime || !endTime || !purpose) {
+                alert('Please fill in all booking details.');
+                return;
+            }
+
+            if (startTime >= endTime) {
+                alert('End time must be after start time.');
+                return;
+            }
+
+            // Simulate booking submission
+            alert(`Room "${room}" booked on ${date} from ${startTime} to ${endTime} for "${purpose}".`);
+            hideModal('bookRoomModal');
+        }
+
+        function cancelBooking() {
+            hideModal('bookRoomModal');
+        }
+
+        function showModal(id) {
+            document.getElementById(id).style.display = 'block';
+        }
+
+        function hideModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        let editingClassId = null;
+
+        function editClass(classId) {
+            const cls = myClasses.find(c => c.id === classId);
+            if (!cls) return;
+
+            editingCell = null; // Not editing timetable cell
+            editingClassId = classId; // Track which class is being edited
+
+            document.getElementById('modalTitle').textContent = 'Edit Class';
+            document.getElementById('editSubject').value = cls.subject;
+            document.getElementById('editRoom').value = cls.room;
+            document.getElementById('editStudents').value = cls.students;
+            document.getElementById('editNotes').value = cls.notes || '';
+            document.getElementById('deleteBtn').style.display = 'inline-block';
+
+            showModal('editClassModal');
+        }
+
+
+        function logout() {
+            sessionStorage.removeItem('user');
+            sessionStorage.removeItem('token');
+            window.location.href = 'index.html';
+        }
+
+        function showSmartClassroomFeatures(contentArea) {
+            // Example classroom location (latitude, longitude)
+            const classroomLat = 40.712776;  // Replace with actual classroom GPS coords
+            const classroomLng = -74.005974;
+            // Generate a unique session token (simple example)
+            const sessionToken = 'SESSION-' + Date.now();
+
+            contentArea.innerHTML = `
+                <h2>🤖 Smart Classroom Features</h2>
+                <p>Control and monitor smart classroom equipment below:</p>
+                <div style="display: flex; flex-wrap: wrap; gap: 30px; margin-top: 20px;">
+                    <!-- Interactive Whiteboard -->
+                    <div style="flex: 1 1 300px; background: #f0f4ff; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(102, 126, 234, 0.3);">
+                        <h3>Interactive Whiteboard</h3>
+                        <p>Status: <span id="whiteboardStatus" style="font-weight: bold; color: green;">Online</span></p>
+                        <button id="toggleWhiteboardBtn" style="padding: 10px 15px; border: none; border-radius: 10px; background: #667eea; color: white; cursor: pointer;">
+                            Turn Off
+                        </button>
+                    </div>
+
+                    <!-- Projector -->
+                    <div style="flex: 1 1 300px; background: #fff7e6; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(255, 165, 2, 0.3);">
+                        <h3>Projector</h3>
+                        <p>Status: <span id="projectorStatus" style="font-weight: bold; color: green;">Online</span></p>
+                        <button id="toggleProjectorBtn" style="padding: 10px 15px; border: none; border-radius: 10px; background: #ffa502; color: white; cursor: pointer;">
+                            Turn Off
+                        </button>
+                    </div>
+
+                    <!-- Attendance System -->
+                    <div style="flex: 1 1 300px; background: #e6fff7; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(46, 213, 115, 0.3);">
+                        <h3>Attendance System</h3>
+                        <p>Status: <span id="attendanceStatus" style="font-weight: bold; color: green;">Online</span></p>
+                        <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left; padding: 8px; border-bottom: 1px solid #ccc;">Student</th>
+                                    <th style="text-align: center; padding: 8px; border-bottom: 1px solid #ccc;">Present</th>
+                                </tr>
+                            </thead>
+                            <tbody id="attendanceList">
+                                <tr>
+                                    <td style="padding: 8px; border-bottom: 1px solid #eee;">Alice Johnson</td>
+                                    <td style="text-align: center; border-bottom: 1px solid #eee;">
+                                        <input type="checkbox" checked />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px; border-bottom: 1px solid #eee;">Bob Smith</td>
+                                    <td style="text-align: center; border-bottom: 1px solid #eee;">
+                                        <input type="checkbox" />
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 8px;">Charlie Lee</td>
+                                    <td style="text-align: center;">
+                                        <input type="checkbox" checked />
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <button id="submitAttendanceBtn" style="margin-top: 15px; padding: 10px 15px; border: none; border-radius: 10px; background: #2ed573; color: white; cursor: pointer;">
+                            Submit Attendance
+                        </button>
+                        <div id="attendanceMessage" style="margin-top: 10px; font-weight: 600; color: #2ed573; display: none;">Attendance submitted successfully!</div>
+                    </div>
+                    <!-- QR Code toggle -->
+                    <div style="flex: 1 1 300px; background: #fff3e0; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(255, 152, 0, 0.3);">
+                        <h3>Session QR Code</h3>
+                        <button id="showSessionQrBtn" style="padding: 10px 15px; border: none; border-radius: 10px; background: #ff9800; color: white; cursor: pointer;">
+                            Show QR Code
+                        </button>
+                        <div id="sessionQrCode" style="margin-top: 15px; display: none;"></div>
+                        <p style="font-size: 0.8em; margin-top: 10px;">Show this QR code to students for check-in.</p>
+                    </div>
+                    <!-- GPS Check-in -->
+                    <div style="flex: 1 1 300px; background: #d0f0c0; padding: 20px; border-radius: 15px; box-shadow: 0 5px 15px rgba(46, 213, 115, 0.3);">
+                        <h3>GPS Check-in</h3>
+                        <button id="gpsCheckinBtn" style="padding: 10px 15px; border: none; border-radius: 10px; background: #2ed573; color: white; cursor: pointer;">
+                            Check In with GPS
+                        </button>
+                        <p id="gpsStatus" style="margin-top: 10px; font-weight: 600;"></p>
+                    </div>
+                    <!-- Final Check-in Status -->
+                    <div style="flex: 1 1 100%; margin-top: 20px;">
+                        <h3>Attendance Check-in Status</h3>
+                        <p id="finalStatus" style="font-weight: bold; font-size: 1.2em; color: #ff4757;"></p>
+                    </div>
+                </div>
+            `;
+
+    // Interactive Whiteboard toggle
+    const whiteboardStatus = document.getElementById('whiteboardStatus');
+    const toggleWhiteboardBtn = document.getElementById('toggleWhiteboardBtn');
+    toggleWhiteboardBtn.addEventListener('click', () => {
+        if (whiteboardStatus.textContent === 'Online') {
+            whiteboardStatus.textContent = 'Offline';
+            whiteboardStatus.style.color = 'red';
+            toggleWhiteboardBtn.textContent = 'Turn On';
+            toggleWhiteboardBtn.style.background = '#ff4757';
+        } else {
+            whiteboardStatus.textContent = 'Online';
+            whiteboardStatus.style.color = 'green';
+            toggleWhiteboardBtn.textContent = 'Turn Off';
+            toggleWhiteboardBtn.style.background = '#667eea';
+        }
+    });
+
+    // Projector toggle
+    const projectorStatus = document.getElementById('projectorStatus');
+    const toggleProjectorBtn = document.getElementById('toggleProjectorBtn');
+    toggleProjectorBtn.addEventListener('click', () => {
+        if (projectorStatus.textContent === 'Online') {
+            projectorStatus.textContent = 'Offline';
+            projectorStatus.style.color = 'red';
+            toggleProjectorBtn.textContent = 'Turn On';
+            toggleProjectorBtn.style.background = '#ff4757';
+        } else {
+            projectorStatus.textContent = 'Online';
+            projectorStatus.style.color = 'green';
+            toggleProjectorBtn.textContent = 'Turn Off';
+            toggleProjectorBtn.style.background = '#ffa502';
+        }
+    });
+
+    // Attendance submission
+    const submitAttendanceBtn = document.getElementById('submitAttendanceBtn');
+    const attendanceMessage = document.getElementById('attendanceMessage');
+    submitAttendanceBtn.addEventListener('click', () => {
+        // Gather attendance data (simulate sending to server)
+        const attendanceRows = document.querySelectorAll('#attendanceList tr');
+        const attendanceData = [];
+        attendanceRows.forEach(row => {
+            const studentName = row.cells[0].textContent;
+            const present = row.querySelector('input[type="checkbox"]').checked;
+            attendanceData.push({ student: studentName, present });
+        });
+        console.log('Attendance submitted:', attendanceData);
+
+        // Show confirmation message briefly
+        attendanceMessage.style.display = 'block';
+        setTimeout(() => {
+            attendanceMessage.style.display = 'none';
+        }, 3000);
+    });
+
+    let qrScanned = false;
+    let gpsCheckedIn = false;
+    // QR code instance variable
+    let qrCodeInstance = null;
+    // Initialize QR code scanner
+    // Show QR code button and container
+    const showSessionQrBtn = document.getElementById('showSessionQrBtn');
+    const sessionQrCodeDiv = document.getElementById('sessionQrCode');
+    showSessionQrBtn.addEventListener('click', () => {
+        if (sessionQrCodeDiv.style.display === 'block') {
+            sessionQrCodeDiv.style.display = 'none';
+            showSessionQrBtn.textContent = 'Show QR Code';
+            // Optional: clear QR code when hiding
+            sessionQrCodeDiv.innerHTML = '';
+            qrCodeInstance = null;
+        } else {
+            sessionQrCodeDiv.style.display = 'block';
+            showSessionQrBtn.textContent = 'Hide QR Code';
+            if (!qrCodeInstance) {
+                qrCodeInstance = new QRCode(sessionQrCodeDiv, {
+                    text: sessionToken,
+                    width: 180,
+                    height: 180,
+                    colorDark: "#000000",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            }
+        }
+    });
+    // Initialize QR code scanner
+    const qrResult = document.getElementById('qr-result');
+    const finalStatus = document.getElementById('finalStatus');
+    function onScanSuccess(decodedText, decodedResult) {
+        if (decodedText === sessionToken) {
+            qrResult.textContent = 'QR Code valid. You may proceed to GPS check-in.';
+            qrResult.style.color = 'green';
+            qrScanned = true;
+            checkFinalStatus();
+            html5QrcodeScanner.clear(); // Stop scanning after success
+        } else {
+            qrResult.textContent = 'Invalid QR Code scanned.';
+            qrResult.style.color = 'red';
+        }
+    }
+
+    function onScanFailure(error) {
+        // No action needed on scan failure per frame
+    }
+    const html5QrcodeScanner = new Html5QrcodeScanner(
+        "qr-reader", { fps: 10, qrbox: 250 });
+    html5QrcodeScanner.render(onScanSuccess, onScanFailure);
+    // GPS check-in button handler
+    const gpsCheckinBtn = document.getElementById('gpsCheckinBtn');
+    const gpsStatus = document.getElementById('gpsStatus');
+    gpsCheckinBtn.addEventListener('click', () => {
+        if (!qrScanned) {
+            finalStatus.textContent = 'Please scan the correct QR code first.';
+            finalStatus.style.color = '#ff4757';
+            return;
+        }
+        if (!navigator.geolocation) {
+            gpsStatus.textContent = 'Geolocation is not supported by your browser.';
+            gpsStatus.style.color = 'red';
+            return;
+        }
+        gpsStatus.textContent = 'Checking location...';
+        navigator.geolocation.getCurrentPosition(position => {
+            const { latitude, longitude } = position.coords;
+            const distance = getDistanceFromLatLonInMeters(latitude, longitude, classroomLat, classroomLng);
+            if (distance <= 100) { // 100 meters radius
+                gpsStatus.textContent = `Location verified (${distance.toFixed(1)} meters from classroom).`;
+                gpsStatus.style.color = 'green';
+                gpsCheckedIn = true;
+                checkFinalStatus();
+            } else {
+                gpsStatus.textContent = `You are too far from the classroom (${distance.toFixed(1)} meters). Check-in denied.`;
+                gpsStatus.style.color = 'red';
+                gpsCheckedIn = false;
+                checkFinalStatus();
+            }
+        }, () => {
+            gpsStatus.textContent = 'Unable to retrieve your location.';
+            gpsStatus.style.color = 'red';
+        });
+    });
+
+    // Check if both QR and GPS are verified
+    function checkFinalStatus() {
+        if (qrScanned && gpsCheckedIn) {
+            finalStatus.textContent = '✅ Attendance check-in successful!';
+            finalStatus.style.color = 'green';
+        } else if (!qrScanned) {
+            finalStatus.textContent = '❌ Please scan the QR code.';
+            finalStatus.style.color = '#ff4757';
+        } else if (!gpsCheckedIn) {
+            finalStatus.textContent = '❌ Please complete GPS check-in.';
+            finalStatus.style.color = '#ff4757';
+        }
+    }
+     // Haversine formula to calculate distance between two lat/lon points in meters
+    function getDistanceFromLatLonInMeters(lat1, lon1, lat2, lon2) {
+        const R = 6371000; // Radius of the earth in meters
+        const dLat = deg2rad(lat2 - lat1);
+        const dLon = deg2rad(lon2 - lon1);
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(deg2rad(lat1)) * Math.cos(deg2rad(lat2)) *
+            Math.sin(dLon / 2) * Math.sin(dLon / 2);
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        return R * c;
+    }
+    function deg2rad(deg) {
+        return deg * (Math.PI / 180);
+    }
+}
+       
+    </script>
+</body>
+</html>
