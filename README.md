@@ -1,4 +1,25 @@
-Project SIH1
+ClassEase – Smart Classroom & Timetable Management App
+
+Key Features:
+
+📅 Timetable Generator & Editor – Auto-creates optimized schedules for classes and labs.
+
+🎯 Student Progress & Goal Tracker – Monitors individual growth and performance.
+
+🧠 Learning Style Identifier – Personalizes learning through mentor allocation.
+
+🧾 Smart Attendance & Risk Assessment – Detects irregularities and identifies at-risk students.
+
+📚 Digital Library & Peer Tutoring – Easy access to study resources and mentorship.
+
+🏆 Events, Skills & Achievements Dashboard – Centralized student activity management.
+
+TechStack:
+Frontend: HTML, CSS, JavaScript
+Backend: Node.js, Express.js
+Database: PostgreSQL
+
+Summary:
 
 Simple Node + Express backend with a small frontend for admin/student/teacher pages.
 
